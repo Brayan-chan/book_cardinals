@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Libro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2>Registro de Libro</h2>
+    <form action="register_book.php" method="POST">
+        <label for="titulo_libro">Título del Libro:</label>
+        <input type="text" id="titulo_libro" name="titulo_libro" required><br><br>
+
+        <label for="anio_publicacion">Año de Publicación:</label>
+        <input type="number" id="anio_publicacion" name="anio_publicacion" required><br><br>
+
+        <label for="genero">Género:</label>
+        <input type="text" id="genero" name="genero" required><br><br>
+
+        <label for="autores">Autores (separar por comas si son varios):</label>
+        <input type="text" id="autores" name="autores" placeholder="Autor1, Autor2, ..."><br><br>
+
+        <button type="submit">Registrar Libro</button>
+    </form>
+</body>
+</html>
