@@ -1,42 +1,27 @@
 <?php
-include 'database.php';
+include 'db_connection.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $titulo = $_POST['titulo_libro'];
     $anio = $_POST['anio_publicacion'];
     $genero = $_POST['genero'];
-    $autores = explode(',', $_POST['autores']);  // Convertir autores a un array
+    $id_autores = $_POST['id_autor'];
 
-    // Iniciar una transacción para respetar ACID
-    $conn->begin_transaction();
+    $query_libro = "INSERT INTO libros (titulo_libro, anio_publicacion, genero) VALUES ('$titulo', '$anio', '$genero')";
 
-    try {
-        // Insertar el libro en la tabla `libros`
-        $stmt_libro = $conn->prepare("INSERT INTO libros (titulo_libro, anio_publicacion, genero) VALUES (?, ?, ?)");
-        $stmt_libro->bind_param("sis", $titulo, $anio, $genero);
-        $stmt_libro->execute();
-        $id_libro = $stmt_libro->insert_id;
+    if (mysqli_query($conn, $query_libro)) {
+        $id_libro = mysqli_insert_id($conn);
 
-        // Insertar cada autor y establecer la relación
-        foreach ($autores as $autor) {
-            $autor = trim($autor);
-            $stmt_autor = $conn->prepare("INSERT INTO autores (nombre_autor) VALUES (?) ON DUPLICATE KEY UPDATE id_autor=LAST_INSERT_ID(id_autor)");
-            $stmt_autor->bind_param("s", $autor);
-            $stmt_autor->execute();
-            $id_autor = $stmt_autor->insert_id;
-
-            // Establecer la relación en la tabla `libros_autores`
-            $stmt_libro_autor = $conn->prepare("INSERT INTO libros_autores (id_libro, id_autor) VALUES (?, ?)");
-            $stmt_libro_autor->bind_param("ii", $id_libro, $id_autor);
-            $stmt_libro_autor->execute();
+        foreach ($id_autores as $id_autor) {
+            $query_relacion = "INSERT INTO libros_autores (id_libro, id_autor) VALUES ('$id_libro', '$id_autor')";
+            mysqli_query($conn, $query_relacion);
         }
 
-        $conn->commit();
-        echo "Libro registrado exitosamente.";
-    } catch (Exception $e) {
-        $conn->rollback();
-        echo "Error al registrar libro: " . $e->getMessage();
+        echo "Libro y autores registrados exitosamente.";
+    } else {
+        echo "Error al registrar libro: " . mysqli_error($conn);
     }
+
+    mysqli_close($conn);
 }
-$conn->close();
 ?>

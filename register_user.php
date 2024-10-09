@@ -1,26 +1,18 @@
 <?php
-include 'database.php';
+include 'db_connection.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nombre = $_POST['nombre_usuario'];
-    $email = $_POST['email'];
+    $email = $_POST['email_usuario'];
 
-    // Iniciar una transacción para respetar ACID
-    $conn->begin_transaction();
+    $query = "INSERT INTO usuarios (nombre_usuario, email) VALUES ('$nombre', '$email')";
 
-    try {
-        $stmt = $conn->prepare("INSERT INTO usuarios (nombre_usuario, email) VALUES (?, ?)");
-        $stmt->bind_param("ss", $nombre, $email);
-        $stmt->execute();
-
-        // Confirmar la transacción
-        $conn->commit();
+    if (mysqli_query($conn, $query)) {
         echo "Usuario registrado exitosamente.";
-    } catch (Exception $e) {
-        $conn->rollback();
-        echo "Error al registrar usuario: " . $e->getMessage();
+    } else {
+        echo "Error al registrar usuario: " . mysqli_error($conn);
     }
-    $stmt->close();
+
+    mysqli_close($conn);
 }
-$conn->close();
 ?>

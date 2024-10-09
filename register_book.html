@@ -1,27 +1,36 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Libro</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h2>Registro de Libro</h2>
+    <h2>Registrar Nuevo Libro</h2>
     <form action="register_book.php" method="POST">
         <label for="titulo_libro">Título del Libro:</label>
-        <input type="text" id="titulo_libro" name="titulo_libro" required><br><br>
+        <input type="text" name="titulo_libro" id="titulo_libro" required><br><br>
 
         <label for="anio_publicacion">Año de Publicación:</label>
-        <input type="number" id="anio_publicacion" name="anio_publicacion" required><br><br>
+        <input type="number" name="anio_publicacion" id="anio_publicacion" min="1000" max="9999"><br><br>
 
         <label for="genero">Género:</label>
-        <input type="text" id="genero" name="genero" required><br><br>
+        <input type="text" name="genero" id="genero"><br><br>
 
-        <label for="autores">Autores (separar por comas si son varios):</label>
-        <input type="text" id="autores" name="autores" placeholder="Autor1, Autor2, ..."><br><br>
+        <label for="id_autor">Seleccionar Autor:</label>
+        <select name="id_autor[]" id="id_autor" multiple>
+            <?php
+                include 'db_connection.php';
+                $autores = mysqli_query($conn, "SELECT id_autor, nombre_autor FROM autores");
+                while ($autor = mysqli_fetch_assoc($autores)) {
+                    echo "<option value='" . $autor['id_autor'] . "'>" . $autor['nombre_autor'] . "</option>";
+                }
+                mysqli_close($conn);
+            ?>
+        </select><br><br>
 
-        <button type="submit">Registrar Libro</button>
+        <input type="submit" value="Registrar Libro">
     </form>
 </body>
 </html>

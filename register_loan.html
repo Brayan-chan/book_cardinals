@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Préstamo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Registrar Nuevo Préstamo</h2>
+    <form action="register_loan.php" method="POST">
+        <label for="usuario">Usuario:</label>
+        <select name="id_usuario" id="id_usuario">
+            <?php
+                include 'db_connection.php';
+                $usuarios = mysqli_query($conn, "SELECT id_usuario, nombre_usuario FROM usuarios");
+                while ($usuario = mysqli_fetch_assoc($usuarios)) {
+                    echo "<option value='" . $usuario['id_usuario'] . "'>" . $usuario['nombre_usuario'] . "</option>";
+                }
+                mysqli_close($conn);
+            ?>
+        </select><br><br>
+
+        <label for="libro">Libro:</label>
+        <select name="id_libro" id="id_libro">
+            <?php
+                include 'db_connection.php';
+                $libros = mysqli_query($conn, "SELECT id_libro, titulo_libro FROM libros");
+                while ($libro = mysqli_fetch_assoc($libros)) {
+                    echo "<option value='" . $libro['id_libro'] . "'>" . $libro['titulo_libro'] . "</option>";
+                }
+                mysqli_close($conn);
+            ?>
+        </select><br><br>
+
+        <label for="fecha_devolucion">Fecha de Devolución:</label>
+        <input type="date" name="fecha_devolucion" id="fecha_devolucion" required><br><br>
+
+        <input type="submit" value="Registrar Préstamo">
+    </form>
+</body>
+</html>

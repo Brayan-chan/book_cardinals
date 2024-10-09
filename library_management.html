@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Biblioteca</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .tabs { display: flex; cursor: pointer; margin-bottom: 20px; }
+        .tabs div { padding: 10px 20px; background: #eee; margin-right: 5px; }
+        .tabs .active { background: #bbb; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .autocomplete-suggestions { border: 1px solid #ddd; max-height: 150px; overflow-y: auto; background: #fff; position: absolute; z-index: 1000; width: 300px; }
+        .autocomplete-suggestion { padding: 8px; cursor: pointer; }
+        .autocomplete-suggestion:hover { background: #f0f0f0; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: center; }
+        th { background: #f4f4f4; }
+    </style>
+</head>
+<body>
+
+    <h1>Gestión de Biblioteca</h1>
+    <div class="tabs">
+        <div id="tab1" class="active">Registrar Usuario</div>
+        <div id="tab2">Registrar Libro</div>
+        <div id="tab3">Realizar Préstamo</div>
+    </div>
+
+    <!-- Registrar Usuario -->
+    <div id="content1" class="tab-content active">
+        <h2>Registro de Usuario</h2>
+        <form id="userForm">
+            <label for="nombre_usuario">Nombre del Usuario:</label>
+            <input type="text" id="nombre_usuario" name="nombre_usuario" required><br><br>
+            <label for="email_usuario">Email:</label>
+            <input type="email" id="email_usuario" name="email_usuario" required><br><br>
+            <button type="submit">Registrar Usuario</button>
+        </form>
+        <div id="userTable"></div>
+    </div>
+
+    <!-- Registrar Libro -->
+    <div id="content2" class="tab-content">
+        <h2>Registro de Libro</h2>
+        <form id="bookForm">
+            <label for="titulo_libro">Título del Libro:</label>
+            <input type="text" id="titulo_libro" name="titulo_libro" required><br><br>
+            <label for="autor_libro">Autor(es):</label>
+            <input type="text" id="autor_libro" name="autor_libro" required><br><br>
+            <button type="submit">Registrar Libro</button>
+        </form>
+        <div id="bookTable"></div>
+    </div>
+
+    <!-- Realizar Préstamo -->
+    <div id="content3" class="tab-content">
+        <h2>Realizar Préstamo</h2>
+        <form id="loanForm">
+            <label for="usuario_search">Buscar Usuario:</label>
+            <input type="text" id="usuario_search" name="usuario_search" placeholder="Ingrese nombre o email" autocomplete="off" required>
+            <input type="hidden" id="id_usuario" name="id_usuario">
+            <div id="usuario_suggestions" class="autocomplete-suggestions"></div><br><br>
+
+            <label for="libro_search">Buscar Libro:</label>
+            <input type="text" id="libro_search" name="libro_search" placeholder="Ingrese título del libro" autocomplete="off" required>
+            <input type="hidden" id="id_libro" name="id_libro">
+            <div id="libro_suggestions" class="autocomplete-suggestions"></div><br><br>
+
+            <label for="fecha_devolucion">Fecha de Devolución (YYYY-MM-DD):</label>
+            <input type="date" id="fecha_devolucion" name="fecha_devolucion" required><br><br>
+
+            <button type="submit">Registrar Préstamo</button>
+        </form>
+        <div id="loanTable"></div>
+    </div>
+
+    <script>
+        // Función para cambiar de pestaña
+        $('.tabs div').click(function () {
+            $('.tabs div').removeClass('active');
+            $(this).addClass('active');
+            $('.tab-content').removeClass('active');
+            $('#content' + this.id.slice(-1)).addClass('active');
+        });
+
+        // Formularios AJAX
+        $('#userForm').submit(function (event) {
+            event.preventDefault();
+            $.post('register_user.php', $(this).serialize(), function (response) {
+                alert(response);
+                loadUserTable();
+                $('#userForm')[0].reset();
+            });
+        });
+
+        $('#bookForm').submit(function (event) {
+            event.preventDefault();
+            $.post('register_book.php', $(this).serialize(), function (response) {
+                alert(response);
+                loadBookTable();
+                $('#bookForm')[0].reset();
+            });
+        });
+
+        $('#loanForm').submit(function (event) {
+            event.preventDefault();
+            $.post('create_loan.php', $(this).serialize(), function (response) {
+                alert(response);
+                loadLoanTable();
+                $('#loanForm')[0].reset();
+            });
+        });
+
+        // Autocompletado de búsqueda en Prestamos
+        $('#usuario_search').on('input', function () {
+            $.post('search_users.php', { query: $(this).val() }, function (data) {
+                $('#usuario_suggestions').html(data);
+            });
+        });
+
+        $(document).on('click', '.user-suggestion', function () {
+            $('#id_usuario').val($(this).data('id'));
+            $('#usuario_search').val($(this).text());
+            $('#usuario_suggestions').html('');
+        });
+
+        $('#libro_search').on('input', function () {
+            $.post('search_books.php', { query: $(this).val() }, function (data) {
+                $('#libro_suggestions').html(data);
+            });
+        });
+
+        $(document).on('click', '.book-suggestion', function () {
+            $('#id_libro').val($(this).data('id'));
+            $('#libro_search').val($(this).text());
+            $('#libro_suggestions').html('');
+        });
+    </script>
+</body>
+</html>
